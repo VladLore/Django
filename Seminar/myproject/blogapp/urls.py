@@ -16,10 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from .views import index, fake_author
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('game/', include('gameapp.urls')),
-     path('blog/', include('blogapp.urls')),
+    path('', index, name='index'),
+    path('fake_authors/', fake_author, name='fake_authors')
 ]
