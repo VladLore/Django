@@ -29,8 +29,8 @@ from django.utils import timezone
 class Client(models.Model):
     name= models.CharField(max_length=50)
     email=models.EmailField()
-    phonenumber= models.IntegerField(max_length=10)
-    adress = models.CharField()
+    phonenumber= models.IntegerField()
+    adress = models.CharField(max_length=100)
     register_date = models.DateTimeField(default= timezone.now)
 
 class Product(models.Model):

@@ -168,7 +168,7 @@ LOGGING = {
         },
         'marketapp':{
             'handlers': ['console', 'file'],
-            'level': 'Debug',
+            'level': 'DEBUG',
             'propagate': True,
         },
     },

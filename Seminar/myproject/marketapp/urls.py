@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from .views import index, fake_author, about_me, main
+from .views import index
 
 
 urlpatterns = [
