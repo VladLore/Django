@@ -160,5 +160,10 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'blogapp':{
+            'handlers':['console', 'file'],
+            'level':'DEBUG',
+            'propagate': True,
+        }
     },
 }
