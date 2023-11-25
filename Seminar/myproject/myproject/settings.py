@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'gameapp',
     'blogapp',
+    'marketapp',
 ]
 
 MIDDLEWARE = [
@@ -164,6 +165,11 @@ LOGGING = {
             'handlers':['console', 'file'],
             'level':'DEBUG',
             'propagate': True,
-        }
+        },
+        'marketapp':{
+            'handlers': ['console', 'file'],
+            'level': 'Debug',
+            'propagate': True,
+        },
     },
 }
