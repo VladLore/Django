@@ -1,9 +1,9 @@
 from django.shortcuts import render
 import logging
 from django.http import HttpResponse
-from .models import Client, Product
+from .models import Client, Product, Order
 from datetime import time
-from random import randint
+
 
 logger = logging.getLogger(__name__)
 # Create your views here.
@@ -59,3 +59,23 @@ def get_products(request):
     products=Product.objects.all()
     logger.info('Продукты получены')
     return HttpResponse(products)
+
+def delete_products(request, prod_id):
+    pk=prod_id
+    product=Product.objects.filter(pk=pk).first()
+    if product is not None:
+        product.delete()
+    logger.info('Товар удален')
+    return HttpResponse(product)
+
+
+def fake_orders(request):
+    for i in range(101):
+        orders= Order(
+            client = f'aaaa{i}',
+            products = f'bbbb{i}',
+            total_price = 120.99,
+        )
+        order.save()
+    logger.info('Заказы созданы')
+    return HttpResponse(order)    
