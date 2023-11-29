@@ -30,30 +30,10 @@ def fake_author(request):
 
 
 def main(request):
-    html = """
-            <div>
-            <h1>Главная страница</h1>
-            <h2>Мой первый сайт:</h2>
-            <p>Создайте пару представлений в вашем первом приложении:</p>
-            <ul>
-                <li>главная</li>
-                <li>о себе</li>
-            </ul>
-            <p>Внутри каждого представления должна быть переменная html — многострочный текст с HTML-вёрсткой и данными о вашем первом Django-сайте и о вас.</p>
-            <p>Сохраняйте в логи данные о посещении страниц.</p>
-        </div>
-        <form action='http://127.0.0.1:8000/blog/about_me/' target="_blank">
-            <button>О себе</button>
-        </form>
-        <br>
-        <footer>
-            <div>
-                <p> Контакты: </p>
-            </div>
-        </footer>
-        """
+    context = {'name': 'John', 'surname':'davids', 'age': 45}
     logger.info(f'Страница "главная" успешно открыта')
-    return HttpResponse(html)
+    return render (request, 'blogapp/index.html', context)
+    # return HttpResponse ('Hello')
 
 
 def about_me(request):

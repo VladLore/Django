@@ -20,8 +20,8 @@ from .views import index, kub, numbers, coin, coin_values
 
 urlpatterns = [
     path('', index, name='index'),
-    path('kub/', kub),
-    path('numbers/', numbers),
-    path('coin/', coin),
+    path('kub/<int:count>', kub),
+    path('numbers/<int:count>', numbers),
+    path('coin/<int:count>', coin),
     path('coin_values/', coin_values)
 ]
