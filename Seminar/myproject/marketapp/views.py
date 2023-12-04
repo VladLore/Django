@@ -1,81 +1,168 @@
 from django.shortcuts import render
-import logging
 from django.http import HttpResponse
-from .models import Client, Product, Order
-from datetime import time
+import logging
+from .models import Client, Order, Product
+from datetime import datetime, timedelta
+from django.core.files.storage import FileSystemStorage
+from .forms import ProductForm, ChoiceProductById, ChoiceProductByClientBydays
+from django.shortcuts import render, get_object_or_404, redirect
 
-
-logger = logging.getLogger(__name__)
-# Create your views here.
+logger = logging.getLogger(__name__)  # переменная для логирования
 
 
 def index(request):
-    logger.info(f"Страница магазина доступна")
-    return HttpResponse("ОК")
+    return render(request, ' marketapp/index.html')
 
 
-def get_users(request):
-    users = Client.objects.all()
-    logger.info("Все ользователи получены")
-    return HttpResponse(users)
+# вывод всех товаров
+def products(request):
+    products = Product.objects.all()
+    logger.info(f'Страница "Список продуктов" успешно открыта')
+    return render(request, 'marketapp/products.html', {'products': products})
 
 
-def fake_users(request):
-    for i in range(101):
-        users = Client(
-            name=f"aaaa{i}",
-            email=f"aaaa{i}",
-            phonenumber=156116574891,
-            adress=f"adress{i}",
-        )
-        users.save()
-    logger.info("Добавлены новые пользваотели")
-    return HttpResponse(users)
+# вывод списка всех клиентов
+def clients(request):
+    clients = Client.objects.all()
+
+    logger.info(f'Страница "Список клиентов" успешно открыта')
+    return render(request, 'marketapp/clients.html', {'clients': clients})
 
 
-def delete_users(request, user_id):
-    pk = user_id
-    users = Client.objects.filter(pk=pk).first()
-    if users is not None:
-        users.delete()
-    logger.info("Пользователь удален")
-    return HttpResponse(users)
+# вывод заказа по  id
+def order(request, id_order: int):
+    # order = Order.objects.filter(pk=id_order).first()
+    order = Order.objects.get(pk=id_order)
+    context = {
+        'order': order
+    }
+    return render(request, 'marketapp/order.html', context=context)
 
 
-def fake_products(request):
-    for i in range(100):
-        products = Product(
-            product_name=f"name{i}",
-            description_name=f"description{i}",
-            price=10.5,
-            quantity_products=50,
-        )
-        products.save()
-    logger.info("Продукты добавлены")
-    return HttpResponse(products)
+# вывод списка заказов
+def orders(request):
+    products_all = []
+    orders = Order.objects.all()
+
+    context = {
+        'orders': orders
+    }
+    return render(request, 'marketapp/orders_all.html', context=context)
 
 
-def get_products(request):
-    products=Product.objects.all()
-    logger.info('Продукты получены')
-    return HttpResponse(products)
+def client_orders(request, id_client: int):
+    products = {}
 
-def delete_products(request, prod_id):
-    pk=prod_id
-    product=Product.objects.filter(pk=pk).first()
-    if product is not None:
-        product.delete()
-    logger.info('Товар удален')
-    return HttpResponse(product)
+    client = Client.objects.filter(pk=id_client).first()
+    orders = Order.objects.filter(buyer=client).all()
+
+    for order in orders:
+        products[order.id] = str(order.products.all()).replace('<QuerySet [<', '').replace('>]>', '').split('>, <')
+
+    return render(request, 'marketapp/client_orders.html', {'client': client, 'orders': orders, 'products': products})
 
 
-def fake_orders(request):
-    for i in range(101):
-        orders= Order(
-            client = f'aaaa{i}',
-            products = f'bbbb{i}',
-            total_price = 120.99,
-        )
-        order.save()
-    logger.info('Заказы созданы')
-    return HttpResponse(order)    
+def product(request, id_product: int):
+    product = Product.objects.filter(pk=id_product).first()
+    context = {
+        "product": product
+
+    }
+    return render(request, "marketapp/product.html", context=context)
+
+
+def client_products_sorted(request, id_client: int, days: int):
+    products = []
+    product_set = []
+    now = datetime.now()
+    before = now - timedelta(days=days)
+    client = Client.objects.filter(pk=id_client).first()
+    orders = Order.objects.filter(buyer=client, date_create_order__range=(before, now)).all()
+    for order in orders:
+        products = order.products.all()
+        for product in products:
+            if product not in product_set:
+                product_set.append(product)
+
+    return render(request, 'marketapp/client_all_products_from_orders.html',
+                  {'client': client, 'product_set': product_set, 'days': days})
+
+
+# представление для ввода данных о продукте через форму и сохранение изображения продукта на сервер
+def product_form(request, id_product: int):
+    product = get_object_or_404(Product, pk=id_product)
+    if request.method == "POST":
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            product.name_product = request.POST["name_product"]
+            product.description_product = request.POST["description_product"]
+            product.cost = request.POST["cost"]
+            product.quantity = request.POST["quantity"]
+            image = form.cleaned_data['image']
+            # fs = FileSystemStorage()
+            # fs.save(image.name, image)                                 #сохранение image на сервер
+            if "image" in request.FILES:
+                product.image_product = request.FILES["image"]  # запись Image в переменную БД
+            product.save()
+            logger.info(f"Product {product.name_product} is changed successfully")
+            return redirect("product", id_product=product.id)
+    else:
+        form = ProductForm()
+
+    context = {
+        "form": form,
+        "product": product,
+    }
+    return render(request, "marketapp/product_form.html", context=context)
+
+
+# форма для выбора  продукции по id для формы редактирования продукта
+def choice_product_by_id(request):
+    if request.method == "POST":
+        form = ChoiceProductById(request.POST, request.FILES)
+        if form.is_valid():
+            id_product = request.POST['id_product']
+
+            return redirect("product_form", id_product)
+    else:
+        form = ChoiceProductById()
+
+    context = {
+        "form": form
+    }
+    return render(request, "marketapp/choice_product_form.html", context=context)
+
+
+#форма для выбора клиента и кол дней
+def choice_products_by_client_by_days(request):
+    if request.method == "POST":
+        form = ChoiceProductByClientBydays(request.POST, request.FILES)
+        if form.is_valid():
+            id_client = request.POST['id_client']
+            days = request.POST['days']
+
+            return redirect("client_products_sorted", id_client, days)
+    else:
+        form = ChoiceProductByClientBydays()
+
+    context = {
+        "form": form
+    }
+    return render(request, "marketapp/choice_product_days_form.html", context=context)
+
+
+# форма для выбора продукции
+def choice_product(request):
+    if request.method == "POST":
+        form = ChoiceProductById(request.POST, request.FILES)
+        if form.is_valid():
+            id_product = request.POST['id_product']
+
+            return redirect("product", id_product)
+    else:
+        form = ChoiceProductById()
+
+    context = {
+        "form": form
+    }
+    return render(request, " marketapp/choice_product_form.html", context=context)
