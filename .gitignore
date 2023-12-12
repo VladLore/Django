@@ -2,3 +2,5 @@ venv
 Lection/myproject/log/django.log
 __pycache__
 Seminar/myproject/log/django.log
+db.sqlite3_bk
+Homework

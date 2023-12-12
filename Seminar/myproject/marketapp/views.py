@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)  # переменная для логиро
 
 
 def index(request):
-    return render(request, ' marketapp/index.html')
+    return render(request, 'marketapp/index.html')
 
 
 # вывод всех товаров
@@ -165,4 +165,4 @@ def choice_product(request):
     context = {
         "form": form
     }
-    return render(request, " marketapp/choice_product_form.html", context=context)
+    return render(request, "marketapp/choice_product_form.html", context=context)

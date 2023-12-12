@@ -21,7 +21,7 @@ from .views import index, fake_author, about_me, main
 
 urlpatterns = [
     path('', index, name='index'),
-    # path('fake_authors/', fake_author, name='fake_authors'),
+    path('fake_authors/', fake_author, name='fake_authors'),
     path('main/', main, name='main'),
     path('about_me/', about_me, name='about_me'),
 ]

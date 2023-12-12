@@ -30,6 +30,9 @@ ALLOWED_HOSTS = [
     '127.0.0.1'
 ]
 
+INTERNAL_IPS=[
+    '127.0.0.1',
+]
 
 # Application definition
 
@@ -43,9 +46,13 @@ INSTALLED_APPS = [
     'myapp',
     'myapp2',
     'myapp3',
+    'myapp4',
+    'myapp5',
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -125,6 +132,9 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -168,6 +178,11 @@ LOGGING = {
         'myapp3':{
             'handlers': ['console', 'file'],
             'level': 'DEBUG',
+            'propagate': True,
+        },
+        'myapp4':{
+            'handlers':['console', 'file'],
+            'level':'DEBUG',
             'propagate': True,
         },
     },

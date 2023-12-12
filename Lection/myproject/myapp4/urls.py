@@ -16,13 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from myapp3.views import index
+from myapp4.views import user_form, many_field_form, add_user, upload_image
 
 urlpatterns = [
-    path('', index),
-    path('admin/', admin.site.urls),
-    path('prefix/', include('myapp.urls')),
-    path('app3/', include('myapp3.urls')),
-    path('app4/', include('myapp4.urls')),
-    path('__debug__', include('debug_toolbar.urls')),
+    path('user/add/',user_form, name='user_name'),
+    path('forms/', many_field_form, name='many_field_form'),
+    path('add_user/', add_user, name='add_user'),
+    path('upload/', upload_image, name='upload_image'),
 ]
